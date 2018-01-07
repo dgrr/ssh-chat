@@ -350,6 +350,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 			txt := fmt.Sprintf("[Private mode started with %s]", target.Name())
 			ms := message.NewSystemMsg(txt, msg.From())
 			room.Send(ms)
+			target.SetReplyTo(msg.From())
 			return nil
 		},
 	})
