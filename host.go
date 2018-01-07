@@ -373,7 +373,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 				whois = id.WhoisMaster()
 			case false:
 				if room.IsOp(msg.From()) {
-					whois = id.WhoIsMaster()
+					whois = id.WhoisAdmin()
 				} else {
 					whois = id.Whois()
 				}
