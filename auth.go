@@ -113,7 +113,6 @@ func (a *Auth) Master(key ssh.PublicKey, d time.Duration) {
 		a.masters.Add(authItem)
 	}
 	logger.Debugf("Added to masters: %s (for %s)", authItem.Key(), d)
-
 }
 
 // IsOp checks if a public key is an op.

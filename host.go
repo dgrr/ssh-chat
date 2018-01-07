@@ -16,7 +16,7 @@ import (
 	"github.com/themester/ssh-chat/sshd"
 )
 
-const maxInputLength int = 1024
+const maxInputLength int = 4096
 
 // GetPrompt will render the terminal prompt string based on the user.
 func GetPrompt(user *message.User) string {
@@ -42,8 +42,12 @@ type Host struct {
 	// Default theme
 	theme message.Theme
 
-	mu    sync.Mutex
-	motd  string
+	mu   sync.Mutex
+	motd string
+	// start private mode
+	private bool
+	toUser  *message.User
+
 	count int
 }
 
@@ -171,10 +175,14 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			continue
 		}
 
-		m := message.ParseInput(line, user)
+		var m message.Message
+		if h.private {
+			m = message.NewPrivateMsg(
+				message.ParseInput(line, user).String(), user, h.toUser,
+			)
+		}
 
-		// FIXME: Any reason to use h.room.Send(m) instead?
-		h.HandleMsg(m)
+		h.Send(m)
 
 		cmd := m.Command()
 		if cmd == "/nick" || cmd == "/theme" {
@@ -315,6 +323,45 @@ func (h *Host) InitCommands(c *chat.Commands) {
 			ms := message.NewSystemMsg(txt, msg.From())
 			room.Send(ms)
 			target.SetReplyTo(msg.From())
+			return nil
+		},
+	})
+
+	c.Add(chat.Command{
+		Prefix:     "/private",
+		PrefixHelp: "USER",
+		Help:       "Start private chat with USER",
+		Handler: func(room *chat.Room, msg message.CommandMsg) error {
+			args := msg.Args()
+			if len(args) == 0 {
+				return errors.New("must specify user")
+			}
+
+			target, ok := h.GetUser(args[0])
+			if !ok {
+				return errors.New("user not found")
+			}
+
+			h.private = true
+			h.toUser = target
+
+			txt := fmt.Sprintf("[Private mode started with %s]", target.Name())
+			ms := message.NewSystemMsg(txt, msg.From())
+			room.Send(ms)
+			return nil
+		},
+	})
+
+	c.Add(chat.Command{
+		Prefix: "/endprivate",
+		Help:   "Stop private chat",
+		Handler: func(room *chat.Room, msg message.CommandMsg) error {
+			h.private = false
+			h.toUser = nil
+
+			txt := "[Private mode ended]"
+			ms := message.NewSystemMsg(txt, msg.From())
+			room.Send(ms)
 			return nil
 		},
 	})
