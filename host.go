@@ -45,8 +45,7 @@ type Host struct {
 	mu   sync.Mutex
 	motd string
 	// start private mode
-	private bool
-	toUser  *message.User
+	private map[string]*message.User
 
 	count int
 }
@@ -176,9 +175,10 @@ func (h *Host) Connect(term *sshd.Terminal) {
 		}
 
 		var m message.Message
-		if h.private {
+		to, ok := h.private[user.Name()]
+		if ok {
 			m = message.NewPrivateMsg(
-				message.ParseInput(line, user).String(), user, h.toUser,
+				message.ParseInput(line, user).String(), user, to,
 			)
 		} else {
 			m = message.ParseInput(line, user)
@@ -344,8 +344,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 				return errors.New("user not found")
 			}
 
-			h.private = true
-			h.toUser = target
+			h.private[msg.From().Name()] = target
 
 			txt := fmt.Sprintf("[Private mode started with %s]", target.Name())
 			ms := message.NewSystemMsg(txt, msg.From())
@@ -359,8 +358,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 		Prefix: "/endprivate",
 		Help:   "Stop private chat",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
-			h.private = false
-			h.toUser = nil
+			delete(h.private, msg.From().Name())
 
 			txt := "[Private mode ended]"
 			ms := message.NewSystemMsg(txt, msg.From())
