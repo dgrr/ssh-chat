@@ -182,7 +182,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			)
 		}
 
-		h.Send(m)
+		h.HandleMsg(m)
 
 		cmd := m.Command()
 		if cmd == "/nick" || cmd == "/theme" {
