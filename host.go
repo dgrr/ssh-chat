@@ -373,7 +373,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 				whois = id.WhoisMaster()
 			case false:
 				if room.IsOp(msg.From()) {
-					whois = id.WhoisAdmin()
+					whois = id.WhoIsMaster()
 				} else {
 					whois = id.Whois()
 				}
@@ -431,13 +431,13 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
-		Op:         true,
+		Admin:      true,
 		Prefix:     "/ban",
 		PrefixHelp: "USER [DURATION]",
 		Help:       "Ban USER from the server.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
 			// TODO: Would be nice to specify what to ban. Key? Ip? etc.
-			if !room.IsOp(msg.From()) {
+			if !room.IsMaster(msg.From()) {
 				return errors.New("must be op")
 			}
 
@@ -471,13 +471,17 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
-		Op:         true,
+		Admin:      true,
 		Prefix:     "/motd",
 		PrefixHelp: "[MESSAGE]",
 		Help:       "Set a new MESSAGE of the day, print the current motd without parameters.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
-			args := msg.Args()
 			user := msg.From()
+			if !room.IsMaster(user) {
+				return errors.New("must be OP to modify the MOTD")
+			}
+
+			args := msg.Args()
 
 			h.mu.Lock()
 			motd := h.motd
@@ -486,9 +490,6 @@ func (h *Host) InitCommands(c *chat.Commands) {
 			if len(args) == 0 {
 				room.Send(message.NewSystemMsg(motd, user))
 				return nil
-			}
-			if !room.IsOp(user) {
-				return errors.New("must be OP to modify the MOTD")
 			}
 
 			motd = strings.Join(args, " ")
@@ -506,8 +507,8 @@ func (h *Host) InitCommands(c *chat.Commands) {
 		PrefixHelp: "USER [DURATION]",
 		Help:       "Set USER as admin.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
-			if !room.IsOp(msg.From()) {
-				return errors.New("must be op")
+			if !room.IsMaster(msg.From()) {
+				return errors.New("must be admin")
 			}
 
 			args := msg.Args()

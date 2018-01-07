@@ -36,6 +36,8 @@ type Command struct {
 	Handler func(*Room, message.CommandMsg) error
 	// Command requires Op permissions
 	Op bool
+	// command requires Admin permissions
+	Admin bool
 }
 
 // Commands is a registry of available commands.
@@ -82,7 +84,7 @@ func (c Commands) Help(showOp bool) string {
 	op := []*Command{}
 	normal := []*Command{}
 	for _, cmd := range c {
-		if cmd.Op {
+		if cmd.Op || cmd.Admin {
 			op = append(op, cmd)
 		} else {
 			normal = append(normal, cmd)
@@ -108,6 +110,9 @@ func InitCommands(c *Commands) {
 		Prefix: "/help",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			op := room.IsOp(msg.From())
+			if !op {
+				op = room.IsAdmin(msg.From())
+			}
 			room.Send(message.NewSystemMsg(room.commands.Help(op), msg.From()))
 			return nil
 		},
