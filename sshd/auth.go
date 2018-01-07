@@ -3,7 +3,7 @@ package sshd
 import (
 	"crypto/sha256"
 	"encoding/base64"
-	"errors"
+	//"errors"
 	"net"
 
 	"golang.org/x/crypto/ssh"
