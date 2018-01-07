@@ -502,7 +502,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
-		Op:         true,
+		Admin:      true,
 		Prefix:     "/op",
 		PrefixHelp: "USER [DURATION]",
 		Help:       "Set USER as admin.",
@@ -538,7 +538,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
-		Op:         true,
+		Admin:      true,
 		Prefix:     "/delop",
 		PrefixHelp: "USER",
 		Help:       "Remove USER as admin.",

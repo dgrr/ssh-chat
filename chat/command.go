@@ -79,20 +79,28 @@ func (c Commands) Run(room *Room, msg message.CommandMsg) error {
 }
 
 // Help will return collated help text as one string.
-func (c Commands) Help(showOp bool) string {
+func (c Commands) Help(showOp, showAdmin bool) string {
 	// Filter by op
 	op := []*Command{}
+	admin := []*Command{}
 	normal := []*Command{}
 	for _, cmd := range c {
-		if cmd.Op || cmd.Admin {
+		if cmd.Op {
 			op = append(op, cmd)
-		} else {
+		}
+		if cmd.Admin {
+			admin = append(admin, cmd)
+		}
+		if !cmd.Op && !cmd.Admin {
 			normal = append(normal, cmd)
 		}
 	}
 	help := "Available commands:" + message.Newline + NewCommandsHelp(normal).String()
 	if showOp {
 		help += message.Newline + "-> Operator commands:" + message.Newline + NewCommandsHelp(op).String()
+	}
+	if showAdmin {
+		help += message.Newline + "-> Admin commands:" + message.Newline + NewCommandsHelp(admin).String()
 	}
 	return help
 }
@@ -110,10 +118,8 @@ func InitCommands(c *Commands) {
 		Prefix: "/help",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			op := room.IsOp(msg.From())
-			if !op {
-				op = room.IsMaster(msg.From())
-			}
-			room.Send(message.NewSystemMsg(room.commands.Help(op), msg.From()))
+			admin := room.IsMaster(msg.From())
+			room.Send(message.NewSystemMsg(room.commands.Help(op, admin), msg.From()))
 			return nil
 		},
 	})
