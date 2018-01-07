@@ -552,7 +552,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 				return errors.New("must specify user")
 			}
 
-			_, ok := room.MemberByID(args[0])
+			member, ok := room.MemberByID(args[0])
 			if !ok {
 				return errors.New("user not found")
 			}
