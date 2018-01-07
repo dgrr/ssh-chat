@@ -3,7 +3,7 @@ package sshd
 import (
 	"crypto/sha256"
 	"encoding/base64"
-	//"errors"
+	"errors"
 	"net"
 
 	"golang.org/x/crypto/ssh"
@@ -32,15 +32,13 @@ func MakeAuth(auth Auth) *ssh.ServerConfig {
 			}}
 			return perm, nil
 		},
-		/*
-			KeyboardInteractiveCallback: func(conn ssh.ConnMetadata, challenge ssh.KeyboardInteractiveChallenge) (*ssh.Permissions, error) {
-				if !auth.AllowAnonymous() {
-					return nil, errors.New("public key authentication required")
-				}
-				_, err := auth.Check(conn.RemoteAddr(), nil)
-				return nil, err
-			},
-		*/
+		KeyboardInteractiveCallback: func(conn ssh.ConnMetadata, challenge ssh.KeyboardInteractiveChallenge) (*ssh.Permissions, error) {
+			if !auth.AllowAnonymous() {
+				return nil, errors.New("public key authentication required")
+			}
+			_, err := auth.Check(conn.RemoteAddr(), nil)
+			return nil, err
+		},
 	}
 
 	return &config
