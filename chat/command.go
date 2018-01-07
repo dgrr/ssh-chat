@@ -111,7 +111,7 @@ func InitCommands(c *Commands) {
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			op := room.IsOp(msg.From())
 			if !op {
-				op = room.IsAdmin(msg.From())
+				op = room.IsMaster(msg.From())
 			}
 			room.Send(message.NewSystemMsg(room.commands.Help(op), msg.From()))
 			return nil
