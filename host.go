@@ -410,7 +410,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 		PrefixHelp: "USER",
 		Help:       "Kick USER from the server.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
-			if !room.IsOp(msg.From()) && !room.IsAdmin(msg.From()) {
+			if !room.IsOp(msg.From()) && !room.IsMaster(msg.From()) {
 				return errors.New("must be op")
 			}
 
