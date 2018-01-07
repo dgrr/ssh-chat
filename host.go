@@ -175,17 +175,16 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			continue
 		}
 
-		var m message.Message
+		m := message.ParseInput(line, user)
+
 		to, ok := h.private[user.Name()]
 		if ok {
 			m = message.NewPrivateMsg(
-				message.ParseInput(line, user).String(), user, to,
+				m.String(), user, to,
 			)
-		} else {
-			m = message.ParseInput(line, user)
 		}
 
-		h.Send(m)
+		h.HandleMsg(m)
 
 		cmd := m.Command()
 		if cmd == "/nick" || cmd == "/theme" {
