@@ -180,9 +180,11 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			m = message.NewPrivateMsg(
 				message.ParseInput(line, user).String(), user, h.toUser,
 			)
+		} else {
+			m = message.ParseInput(line, user)
 		}
 
-		h.HandleMsg(m)
+		h.Send(m)
 
 		cmd := m.Command()
 		if cmd == "/nick" || cmd == "/theme" {
