@@ -561,6 +561,9 @@ func (h *Host) InitCommands(c *chat.Commands) {
 				return err
 			}
 
+			body := fmt.Sprintf("Deleted op by %s.", msg.From().Name())
+			room.Send(message.NewSystemMsg(body, member.User))
+
 			return nil
 		},
 	})
