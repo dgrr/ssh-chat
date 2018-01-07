@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shazow/ssh-chat/chat/message"
+	"github.com/themester/ssh-chat/chat/message"
 )
 
 // Used for testing

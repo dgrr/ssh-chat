@@ -10,10 +10,10 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/shazow/rateio"
-	"github.com/shazow/ssh-chat/chat"
-	"github.com/shazow/ssh-chat/chat/message"
-	"github.com/shazow/ssh-chat/set"
-	"github.com/shazow/ssh-chat/sshd"
+	"github.com/themester/ssh-chat/chat"
+	"github.com/themester/ssh-chat/chat/message"
+	"github.com/themester/ssh-chat/set"
+	"github.com/themester/ssh-chat/sshd"
 )
 
 const maxInputLength int = 1024
@@ -88,6 +88,14 @@ func (h *Host) isOp(conn sshd.Connection) bool {
 	return h.auth.IsOp(key)
 }
 
+func (h *Host) isMaster(conn sshd.Connection) bool {
+	key := conn.PublicKey()
+	if key == nil {
+		return false
+	}
+	return h.auth.IsMaster(key)
+}
+
 // Connect a specific Terminal to this host and its room.
 func (h *Host) Connect(term *sshd.Terminal) {
 	id := NewIdentity(term.Conn)
@@ -131,6 +139,9 @@ func (h *Host) Connect(term *sshd.Terminal) {
 	// Should the user be op'd on join?
 	if h.isOp(term.Conn) {
 		h.Room.Ops.Add(set.Itemize(member.ID(), member))
+	}
+	if h.isMaster(term.Conn) {
+		h.Room.Masters.Add(set.Itemize(member.ID(), member))
 	}
 	ratelimit := rateio.NewSimpleLimiter(3, time.Second*3)
 
@@ -357,11 +368,15 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 			id := target.Identifier.(*Identity)
 			var whois string
-			switch room.IsOp(msg.From()) {
+			switch room.IsMaster(msg.From()) {
 			case true:
-				whois = id.WhoisAdmin()
+				whois = id.WhoisMaster()
 			case false:
-				whois = id.Whois()
+				if room.IsOp(msg.From()) {
+					whois = id.WhoisAdmin()
+				} else {
+					whois = id.Whois()
+				}
 			}
 			room.Send(message.NewSystemMsg(whois, msg.From()))
 
@@ -516,6 +531,34 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 			body := fmt.Sprintf("Made op by %s.", msg.From().Name())
 			room.Send(message.NewSystemMsg(body, member.User))
+
+			return nil
+		},
+	})
+
+	c.Add(chat.Command{
+		Op:         true,
+		Prefix:     "/delop",
+		PrefixHelp: "USER",
+		Help:       "Remove USER as admin.",
+		Handler: func(room *chat.Room, msg message.CommandMsg) error {
+			if !room.IsMaster(msg.From()) {
+				return errors.New("must be master")
+			}
+
+			args := msg.Args()
+			if len(args) == 0 {
+				return errors.New("must specify user")
+			}
+
+			_, ok := room.MemberByID(args[0])
+			if !ok {
+				return errors.New("user not found")
+			}
+			err := room.Ops.Remove(args[0])
+			if err != nil {
+				return err
+			}
 
 			return nil
 		},

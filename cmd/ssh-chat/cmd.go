@@ -15,10 +15,10 @@ import (
 	"github.com/jessevdk/go-flags"
 	"golang.org/x/crypto/ssh"
 
-	"github.com/shazow/ssh-chat"
-	"github.com/shazow/ssh-chat/chat"
-	"github.com/shazow/ssh-chat/chat/message"
-	"github.com/shazow/ssh-chat/sshd"
+	"github.com/themester/ssh-chat"
+	"github.com/themester/ssh-chat/chat"
+	"github.com/themester/ssh-chat/chat/message"
+	"github.com/themester/ssh-chat/sshd"
 )
 import _ "net/http/pprof"
 
@@ -31,7 +31,8 @@ type Options struct {
 	Version   bool   `long:"version" description:"Print version and exit."`
 	Identity  string `short:"i" long:"identity" description:"Private key to identify server with." default:"~/.ssh/id_rsa"`
 	Bind      string `long:"bind" description:"Host and port to listen on." default:"0.0.0.0:2022"`
-	Admin     string `long:"admin" description:"File of public keys who are admins."`
+	Mods      string `long:"moderators" description:"File of public keys who are moderators."`
+	Admins    string `long:"admins" description:"File of public keys who are admins."`
 	Whitelist string `long:"whitelist" description:"Optional file of public keys who are allowed to connect."`
 	Motd      string `long:"motd" description:"Optional Message of the Day file."`
 	Log       string `long:"log" description:"Write chat log to this file."`
@@ -123,7 +124,18 @@ func main() {
 	host.SetTheme(message.Themes[0])
 	host.Version = Version
 
-	err = fromFile(options.Admin, func(line []byte) error {
+	err = fromFile(options.Admins, func(line []byte) error {
+		key, _, _, _, err := ssh.ParseAuthorizedKey(line)
+		if err != nil {
+			return err
+		}
+		auth.Master(key, 0)
+		return nil
+	})
+	if err != nil {
+		fail(5, "Failed to load admins: %v\n", err)
+	}
+	err = fromFile(options.Mods, func(line []byte) error {
 		key, _, _, _, err := ssh.ParseAuthorizedKey(line)
 		if err != nil {
 			return err

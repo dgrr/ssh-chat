@@ -5,8 +5,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/shazow/ssh-chat/set"
-	"github.com/shazow/ssh-chat/sshd"
+	"github.com/themester/ssh-chat/set"
+	"github.com/themester/ssh-chat/sshd"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -44,6 +44,7 @@ type Auth struct {
 	banned     *set.Set
 	whitelist  *set.Set
 	ops        *set.Set
+	masters    *set.Set
 }
 
 // NewAuth creates a new empty Auth.
@@ -53,6 +54,7 @@ func NewAuth() *Auth {
 		banned:     set.New(),
 		whitelist:  set.New(),
 		ops:        set.New(),
+		masters:    set.New(),
 	}
 }
 
@@ -99,6 +101,21 @@ func (a *Auth) Op(key ssh.PublicKey, d time.Duration) {
 	logger.Debugf("Added to ops: %s (for %s)", authItem.Key(), d)
 }
 
+// Master sets a public key as a known admin master.
+func (a *Auth) Master(key ssh.PublicKey, d time.Duration) {
+	if key == nil {
+		return
+	}
+	authItem := newAuthItem(key)
+	if d != 0 {
+		a.masters.Add(set.Expire(authItem, d))
+	} else {
+		a.masters.Add(authItem)
+	}
+	logger.Debugf("Added to masters: %s (for %s)", authItem.Key(), d)
+
+}
+
 // IsOp checks if a public key is an op.
 func (a *Auth) IsOp(key ssh.PublicKey) bool {
 	if key == nil {
@@ -106,6 +123,14 @@ func (a *Auth) IsOp(key ssh.PublicKey) bool {
 	}
 	authkey := newAuthKey(key)
 	return a.ops.In(authkey)
+}
+
+func (a *Auth) IsMaster(key ssh.PublicKey) bool {
+	if key == nil {
+		return false
+	}
+	authkey := newAuthKey(key)
+	return a.masters.In(authkey)
 }
 
 // Whitelist will set a public key as a whitelisted user.

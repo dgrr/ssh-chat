@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/shazow/ssh-chat/set"
+	"github.com/themester/ssh-chat/set"
 )
 
 const messageBuffer = 5

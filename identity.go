@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
-	"github.com/shazow/ssh-chat/chat"
-	"github.com/shazow/ssh-chat/chat/message"
-	"github.com/shazow/ssh-chat/sshd"
+	"github.com/themester/ssh-chat/chat"
+	"github.com/themester/ssh-chat/chat/message"
+	"github.com/themester/ssh-chat/sshd"
 )
 
 // Identity is a container for everything that identifies a client.
@@ -44,6 +44,12 @@ func (i Identity) Name() string {
 
 // Whois returns a whois description for non-admin users.
 func (i Identity) Whois() string {
+	return "name: " + i.Name() + message.Newline +
+		" > joined: " + humanize.Time(i.created)
+}
+
+// WhoisAdmin returns a whois description for admin users.
+func (i Identity) WhoisAdmin() string {
 	fingerprint := "(no public key)"
 	if i.PublicKey() != nil {
 		fingerprint = sshd.Fingerprint(i.PublicKey())
@@ -54,8 +60,7 @@ func (i Identity) Whois() string {
 		" > joined: " + humanize.Time(i.created)
 }
 
-// WhoisAdmin returns a whois description for admin users.
-func (i Identity) WhoisAdmin() string {
+func (i Identity) WhoisMaster() string {
 	ip, _, _ := net.SplitHostPort(i.RemoteAddr().String())
 	fingerprint := "(no public key)"
 	if i.PublicKey() != nil {
