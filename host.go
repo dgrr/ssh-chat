@@ -177,14 +177,18 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 		m := message.ParseInput(line, user)
 
-		to, ok := h.private[user.Name()]
-		if ok {
-			m = message.NewPrivateMsg(
-				m.String(), user, to,
-			)
+		switch m.(type) {
+		case *message.CommandMsg:
+			h.HandleMsg(m)
+		default:
+			to, ok := h.private[user.Name()]
+			if ok {
+				m = message.NewPrivateMsg(
+					m.String(), user, to,
+				)
+			}
+			h.HandleMsg(m)
 		}
-
-		h.HandleMsg(m)
 
 		cmd := m.Command()
 		if cmd == "/nick" || cmd == "/theme" {
