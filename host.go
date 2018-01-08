@@ -187,10 +187,10 @@ func (h *Host) Connect(term *sshd.Terminal) {
 				m = message.NewPrivateMsg(
 					m.String(), user, to,
 				)
+				user.SetChat(to.Name())
+				term.SetPrompt(GetPrompt(user))
 			}
 			h.HandleMsg(m)
-			user.SetChat(to.Name())
-			term.SetPrompt(GetPrompt(user))
 		}
 
 		switch m.Command() {
