@@ -188,15 +188,22 @@ func (h *Host) Connect(term *sshd.Terminal) {
 				)
 			}
 			h.HandleMsg(m)
+			term.SetPrompt(GetPrompt(user))
+			user.SetHighlight(
+				fmt.Sprintf("%s:%s", user.Name(), to.Name()),
+			)
 		}
 
-		cmd := m.Command()
-		if cmd == "/nick" || cmd == "/theme" {
-			// Hijack /nick command to update terminal synchronously. Wouldn't
-			// work if we use h.room.Send(m) above.
-			//
-			// FIXME: This is hacky, how do we improve the API to allow for
-			// this? Chat module shouldn't know about terminals.
+		switch m.Command() {
+		case "/endprivate":
+			fallthrough
+		case "/nick":
+			fallthrough
+		case "/theme":
+			fallthrough
+		case "/setnick":
+			fallthrough
+		default:
 			term.SetPrompt(GetPrompt(user))
 			user.SetHighlight(user.Name())
 		}
