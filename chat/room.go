@@ -10,8 +10,8 @@ import (
 	"github.com/themester/ssh-chat/set"
 )
 
-const historyLen = 20
-const roomBuffer = 10
+const historyLen = 0
+const roomBuffer = 250
 
 // The error returned when a message is sent to a room that is already
 // closed.

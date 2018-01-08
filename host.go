@@ -359,6 +359,19 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
+		Admin:  true,
+		Prefix: "/welcome",
+		Handler: func(room *chat.Room, msg message.CommandMsg) error {
+			if !room.IsMaster(msg.From()) {
+				return errors.New("must be admin")
+			}
+
+			room.Send(message.NewMsg(h.motd))
+			return nil
+		},
+	})
+
+	c.Add(chat.Command{
 		Prefix: "/endprivate",
 		Help:   "Stop private chat",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
