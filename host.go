@@ -179,8 +179,9 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 		m := message.ParseInput(line, user)
 
-		switch m.(type) {
+		switch c := m.(type) {
 		case *message.CommandMsg:
+			toname = c.Args()[0]
 			h.HandleMsg(m)
 		default:
 			to, ok := h.private[user.Name()]
@@ -188,7 +189,6 @@ func (h *Host) Connect(term *sshd.Terminal) {
 				m = message.NewPrivateMsg(
 					m.String(), user, to,
 				)
-				toname = to.Name()
 			}
 			h.HandleMsg(m)
 		}
