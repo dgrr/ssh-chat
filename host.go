@@ -365,6 +365,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 			return nil
 		},
 	})
+	c.Alias("p", "private")
 
 	c.Add(chat.Command{
 		Admin:  true,

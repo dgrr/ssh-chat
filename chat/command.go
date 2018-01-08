@@ -148,6 +148,7 @@ func InitCommands(c *Commands) {
 		},
 	})
 	c.Alias("exit", "quit")
+	c.Alias("q", "quit")
 
 	c.Add(Command{
 		Admin:      true,
