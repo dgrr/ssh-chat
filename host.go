@@ -135,7 +135,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 	}
 
 	// Successfully joined.
-	uesr.SetChat("general")
+	user.SetChat("general")
 	term.SetPrompt(GetPrompt(user))
 	term.AutoCompleteCallback = h.AutoCompleteFunction(user)
 	user.SetHighlight(user.Name())
