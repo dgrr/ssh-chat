@@ -70,7 +70,7 @@ func (c Commands) Run(room *Room, msg message.CommandMsg) error {
 		return ErrNoOwner
 	}
 
-	cmd, ok := c[msg.Command()]
+	cmd, ok := c[msg.Command()[1:]]
 	if !ok {
 		return ErrInvalidCommand
 	}
@@ -115,7 +115,7 @@ func init() {
 // InitCommands injects default commands into a Commands registry.
 func InitCommands(c *Commands) {
 	c.Add(Command{
-		Prefix: "/help",
+		Prefix: "help",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			op := room.IsOp(msg.From())
 			admin := room.IsMaster(msg.From())
@@ -125,7 +125,7 @@ func InitCommands(c *Commands) {
 	})
 
 	c.Add(Command{
-		Prefix: "/me",
+		Prefix: "me",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			me := strings.TrimLeft(msg.Body(), "/me")
 			if me == "" {
@@ -140,18 +140,18 @@ func InitCommands(c *Commands) {
 	})
 
 	c.Add(Command{
-		Prefix: "/exit",
+		Prefix: "exit",
 		Help:   "Exit the chat.",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			msg.From().Close()
 			return nil
 		},
 	})
-	c.Alias("/exit", "/quit")
+	c.Alias("exit", "quit")
 
 	c.Add(Command{
 		Admin:      true,
-		Prefix:     "/setnick",
+		Prefix:     "setnick",
 		PrefixHelp: "NAME ANOTHER",
 		Help:       "Rename NAME to ANOTHER username",
 		Handler: func(room *Room, msg message.CommandMsg) error {
@@ -180,7 +180,7 @@ func InitCommands(c *Commands) {
 		},
 	})
 	c.Add(Command{
-		Prefix:     "/nick",
+		Prefix:     "nick",
 		PrefixHelp: "NAME",
 		Help:       "Rename yourself.",
 		Handler: func(room *Room, msg message.CommandMsg) error {
@@ -211,7 +211,7 @@ func InitCommands(c *Commands) {
 	})
 
 	c.Add(Command{
-		Prefix: "/names",
+		Prefix: "names",
 		Help:   "List users who are connected.",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			theme := msg.From().Config().Theme
@@ -237,10 +237,10 @@ func InitCommands(c *Commands) {
 			return nil
 		},
 	})
-	c.Alias("/names", "/list")
+	c.Alias("names", "list")
 
 	c.Add(Command{
-		Prefix:     "/theme",
+		Prefix:     "theme",
 		PrefixHelp: "[colors|...]",
 		Help:       "Set your color theme.",
 		Handler: func(room *Room, msg message.CommandMsg) error {
@@ -280,7 +280,7 @@ func InitCommands(c *Commands) {
 	})
 
 	c.Add(Command{
-		Prefix: "/quiet",
+		Prefix: "quiet",
 		Help:   "Silence room announcements.",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			u := msg.From()
@@ -300,7 +300,7 @@ func InitCommands(c *Commands) {
 	})
 
 	c.Add(Command{
-		Prefix:     "/slap",
+		Prefix:     "slap",
 		PrefixHelp: "NAME",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			var me string
@@ -317,7 +317,7 @@ func InitCommands(c *Commands) {
 	})
 
 	c.Add(Command{
-		Prefix:     "/ignore",
+		Prefix:     "ignore",
 		PrefixHelp: "[USER]",
 		Help:       "Hide messages from USER, /unignore USER to stop hiding.",
 		Handler: func(room *Room, msg message.CommandMsg) error {
@@ -362,7 +362,7 @@ func InitCommands(c *Commands) {
 	})
 
 	c.Add(Command{
-		Prefix:     "/unignore",
+		Prefix:     "unignore",
 		PrefixHelp: "USER",
 		Handler: func(room *Room, msg message.CommandMsg) error {
 			id := strings.TrimSpace(strings.TrimLeft(msg.Body(), "/unignore"))

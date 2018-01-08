@@ -313,7 +313,7 @@ func (h *Host) GetUser(name string) (*message.User, bool) {
 // override any existing commands.
 func (h *Host) InitCommands(c *chat.Commands) {
 	c.Add(chat.Command{
-		Prefix:     "/msg",
+		Prefix:     "msg",
 		PrefixHelp: "USER MESSAGE",
 		Help:       "Send MESSAGE to USER.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
@@ -342,7 +342,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
-		Prefix:     "/private",
+		Prefix:     "private",
 		PrefixHelp: "USER",
 		Help:       "Start private chat with USER",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
@@ -368,7 +368,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	c.Add(chat.Command{
 		Admin:  true,
-		Prefix: "/welcome",
+		Prefix: "welcome",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
 			if !room.IsMaster(msg.From()) {
 				return errors.New("must be admin")
@@ -380,7 +380,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
-		Prefix: "/endprivate",
+		Prefix: "endprivate",
 		Help:   "Stop private chat",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
 			delete(h.private, msg.From().Name())
@@ -393,7 +393,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
-		Prefix:     "/reply",
+		Prefix:     "reply",
 		PrefixHelp: "MESSAGE",
 		Help:       "Reply with MESSAGE to the previous private message.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
@@ -425,7 +425,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	})
 
 	c.Add(chat.Command{
-		Prefix:     "/whois",
+		Prefix:     "whois",
 		PrefixHelp: "USER",
 		Help:       "Information about USER.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
@@ -459,7 +459,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	// Hidden commands
 	c.Add(chat.Command{
-		Prefix: "/version",
+		Prefix: "version",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
 			room.Send(message.NewSystemMsg(h.Version, msg.From()))
 			return nil
@@ -468,7 +468,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	timeStarted := time.Now()
 	c.Add(chat.Command{
-		Prefix: "/uptime",
+		Prefix: "uptime",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
 			room.Send(message.NewSystemMsg(humanize.Time(timeStarted), msg.From()))
 			return nil
@@ -479,7 +479,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 	c.Add(chat.Command{
 		Op:         true,
 		Admin:      true,
-		Prefix:     "/kick",
+		Prefix:     "kick",
 		PrefixHelp: "USER",
 		Help:       "Kick USER from the server.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
@@ -506,7 +506,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	c.Add(chat.Command{
 		Admin:      true,
-		Prefix:     "/ban",
+		Prefix:     "ban",
 		PrefixHelp: "USER [DURATION]",
 		Help:       "Ban USER from the server.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
@@ -546,7 +546,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	c.Add(chat.Command{
 		Admin:      true,
-		Prefix:     "/motd",
+		Prefix:     "motd",
 		PrefixHelp: "[MESSAGE]",
 		Help:       "Set a new MESSAGE of the day, print the current motd without parameters.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
@@ -577,7 +577,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	c.Add(chat.Command{
 		Admin:      true,
-		Prefix:     "/op",
+		Prefix:     "op",
 		PrefixHelp: "USER [DURATION]",
 		Help:       "Set USER as admin.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
@@ -613,7 +613,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	c.Add(chat.Command{
 		Admin:      true,
-		Prefix:     "/delop",
+		Prefix:     "delop",
 		PrefixHelp: "USER",
 		Help:       "Remove USER as admin.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
