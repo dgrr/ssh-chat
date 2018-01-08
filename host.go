@@ -196,7 +196,9 @@ func (h *Host) Connect(term *sshd.Terminal) {
 		if cmd := m.Command(); len(cmd) > 0 {
 			switch cmd {
 			case "/private":
-				user.SetChat(to.Name())
+				if to != nil {
+					user.SetChat(to.Name())
+				}
 				fallthrough
 			case "/endprivate":
 				user.SetChat("general")
