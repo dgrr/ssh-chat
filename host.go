@@ -197,13 +197,13 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 		if cmd := m.Command(); len(cmd) > 0 {
 			switch cmd {
-			case "/private":
+			case "private":
 				user.SetChat(toname)
-			case "/endprivate":
+			case "endprivate":
 				user.SetChat("general")
-			case "/nick":
-			case "/theme":
-			case "/setnick":
+			case "nick":
+			case "theme":
+			case "setnick":
 			}
 			term.SetPrompt(GetPrompt(user))
 			user.SetHighlight(user.Name())
