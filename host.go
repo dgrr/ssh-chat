@@ -25,7 +25,7 @@ func GetPrompt(user *message.User) string {
 	if cfg.Theme != nil {
 		name = cfg.Theme.ColorName(user)
 	}
-	return fmt.Sprintf("[%s] ", name)
+	return fmt.Sprintf("[%s:%s] ", name, user.Chat())
 }
 
 // Host is the bridge between sshd and chat modules
@@ -150,6 +150,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 	logger.Debugf("[%s] Joined: %s", term.Conn.RemoteAddr(), user.Name())
 
+	user.SetChat("general")
 	h.private = make(map[string]*message.User)
 	for {
 		line, err := term.ReadLine()
@@ -188,14 +189,13 @@ func (h *Host) Connect(term *sshd.Terminal) {
 				)
 			}
 			h.HandleMsg(m)
+			user.SetChat(to.Name())
 			term.SetPrompt(GetPrompt(user))
-			user.SetHighlight(
-				fmt.Sprintf("%s:%s", user.Name(), to.Name()),
-			)
 		}
 
 		switch m.Command() {
 		case "/endprivate":
+			user.SetChat("general")
 			fallthrough
 		case "/nick":
 			fallthrough

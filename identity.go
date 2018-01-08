@@ -14,6 +14,7 @@ import (
 type Identity struct {
 	sshd.Connection
 	id      string
+	chat    string
 	created time.Time
 }
 
@@ -40,6 +41,14 @@ func (i *Identity) SetName(name string) {
 
 func (i Identity) Name() string {
 	return i.id
+}
+
+func (i Identity) Chat() string {
+	return i.chat
+}
+
+func (i *Identity) SetChat(c string) {
+	i.chat = c
 }
 
 // Whois returns a whois description for non-admin users.
