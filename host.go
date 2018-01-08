@@ -181,9 +181,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 		switch c := m.(type) {
 		case *message.CommandMsg:
-			if args := c.Args(); len(args) > 0 {
-				args = c.Args()
-			}
+			args = c.Args()
 			h.HandleMsg(m)
 		default:
 			to, ok := h.private[user.Name()]
@@ -197,14 +195,6 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 		if cmd := m.Command(); len(cmd) > 0 {
 			switch cmd[1:] {
-			case "setnick":
-				if len(args) > 0 {
-					u, ok := h.GetUser(args[1])
-					if ok {
-						term.SetPrompt(GetPrompt(u))
-						user.SetHighlight(u.Name())
-					}
-				}
 			case "private":
 				if len(args) > 0 {
 					user.SetChat(args[0])
