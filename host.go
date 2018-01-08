@@ -16,7 +16,7 @@ import (
 	"github.com/themester/ssh-chat/sshd"
 )
 
-const maxInputLength int = 4096
+const maxInputLength int = 1024
 
 // GetPrompt will render the terminal prompt string based on the user.
 func GetPrompt(user *message.User) string {
@@ -196,7 +196,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 		}
 
 		if cmd := m.Command(); len(cmd) > 0 {
-			switch cmd {
+			switch cmd[1:] {
 			case "private":
 				user.SetChat(toname)
 			case "endprivate":
