@@ -264,7 +264,7 @@ func (h *Host) AutoCompleteFunction(u *message.User) func(line string, pos int, 
 		posPartial := pos - len(partial)
 
 		var completed string
-		if isFirst && (strings.HasPrefix(partial, "/") || strings.HasPrefix(partial, ":")) {
+		if isFirst && strings.HasPrefix(partial, "/") {
 			// Command
 			completed = h.completeCommand(partial)
 			if completed == "/reply" {
