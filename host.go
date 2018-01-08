@@ -152,6 +152,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 	user.SetChat("general")
 	h.private = make(map[string]*message.User)
+	var to *message.User
 	for {
 		line, err := term.ReadLine()
 		if err == io.EOF {
@@ -182,30 +183,34 @@ func (h *Host) Connect(term *sshd.Terminal) {
 		case *message.CommandMsg:
 			h.HandleMsg(m)
 		default:
-			to, ok := h.private[user.Name()]
+			var ok bool
+			to, ok = h.private[user.Name()]
 			if ok {
 				m = message.NewPrivateMsg(
 					m.String(), user, to,
 				)
-				user.SetChat(to.Name())
-				term.SetPrompt(GetPrompt(user))
 			}
 			h.HandleMsg(m)
 		}
 
-		switch m.Command() {
-		case "/endprivate":
-			user.SetChat("general")
-			fallthrough
-		case "/nick":
-			fallthrough
-		case "/theme":
-			fallthrough
-		case "/setnick":
-			fallthrough
-		default:
-			term.SetPrompt(GetPrompt(user))
-			user.SetHighlight(user.Name())
+		if cmd := m.Command(); len(cmd) > 0 {
+			switch cmd {
+			case "/private":
+				user.SetChat(to.Name())
+				fallthrough
+			case "/endprivate":
+				user.SetChat("general")
+				fallthrough
+			case "/nick":
+				fallthrough
+			case "/theme":
+				fallthrough
+			case "/setnick":
+				fallthrough
+			default:
+				term.SetPrompt(GetPrompt(user))
+				user.SetHighlight(user.Name())
+			}
 		}
 	}
 
