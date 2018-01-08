@@ -203,7 +203,6 @@ func (h *Host) Connect(term *sshd.Terminal) {
 				user.SetChat("general")
 			case "nick":
 			case "theme":
-			case "setnick":
 			}
 			term.SetPrompt(GetPrompt(user))
 			user.SetHighlight(user.Name())

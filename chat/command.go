@@ -177,6 +177,8 @@ func InitCommands(c *Commands) {
 				member.SetID(oldID)
 				return err
 			}
+			term.SetPrompt(GetPrompt(member))
+			user.SetHighlight(member.Name())
 			return nil
 		},
 	})
