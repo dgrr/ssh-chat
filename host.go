@@ -181,7 +181,9 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 		switch c := m.(type) {
 		case *message.CommandMsg:
-			toname = c.Args()[0]
+			if args := c.Args(); len(args) > 0 {
+				toname = c.Args()[0]
+			}
 			h.HandleMsg(m)
 		default:
 			to, ok := h.private[user.Name()]
