@@ -150,7 +150,6 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 	logger.Debugf("[%s] Joined: %s", term.Conn.RemoteAddr(), user.Name())
 
-	user.SetChat("general")
 	h.private = make(map[string]*message.User)
 	var to *message.User
 	for {
@@ -183,23 +182,20 @@ func (h *Host) Connect(term *sshd.Terminal) {
 		case *message.CommandMsg:
 			h.HandleMsg(m)
 		default:
-			var ok bool
-			to, ok = h.private[user.Name()]
+			to, ok := h.private[user.Name()]
 			if ok {
 				m = message.NewPrivateMsg(
 					m.String(), user, to,
 				)
+				user.SetChat(to.Name())
+				term.SetPrompt(GetPrompt(user))
+				user.SetHighlight(user.Name())
 			}
 			h.HandleMsg(m)
 		}
 
 		if cmd := m.Command(); len(cmd) > 0 {
 			switch cmd {
-			case "/private":
-				if to != nil {
-					user.SetChat(to.Name())
-				}
-				fallthrough
 			case "/endprivate":
 				user.SetChat("general")
 				fallthrough
