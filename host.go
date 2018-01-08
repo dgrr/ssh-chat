@@ -151,7 +151,6 @@ func (h *Host) Connect(term *sshd.Terminal) {
 	logger.Debugf("[%s] Joined: %s", term.Conn.RemoteAddr(), user.Name())
 
 	h.private = make(map[string]*message.User)
-	var to *message.User
 	for {
 		line, err := term.ReadLine()
 		if err == io.EOF {
