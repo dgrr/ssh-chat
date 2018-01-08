@@ -181,12 +181,12 @@ func InitCommands(c *Commands) {
 		},
 	})
 
-	c.Add(chat.Command{
+	c.Add(Command{
 		Admin:      true,
 		Prefix:     "setnick",
 		PrefixHelp: "NAME ANOTHER",
 		Help:       "Rename NAME to ANOTHER username",
-		Handler: func(room *chat.Room, msg message.CommandMsg) error {
+		Handler: func(room *Room, msg message.CommandMsg) error {
 			args := msg.Args()
 			if len(args) < 2 {
 				return errors.New("invalid arguments")
@@ -198,7 +198,7 @@ func InitCommands(c *Commands) {
 			}
 
 			oldID := member.ID()
-			newID := chat.SanitizeName(args[1])
+			newID := SanitizeName(args[1])
 			if newID == oldID {
 				return errors.New("new name is the same as the original")
 			}
