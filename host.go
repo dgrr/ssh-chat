@@ -151,7 +151,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 	logger.Debugf("[%s] Joined: %s", term.Conn.RemoteAddr(), user.Name())
 
-	var toname string
+	var args []string
 	h.private = make(map[string]*message.User)
 	for {
 		line, err := term.ReadLine()
@@ -182,7 +182,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 		switch c := m.(type) {
 		case *message.CommandMsg:
 			if args := c.Args(); len(args) > 0 {
-				toname = c.Args()[0]
+				args = c.Args()
 			}
 			h.HandleMsg(m)
 		default:
@@ -197,8 +197,18 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 		if cmd := m.Command(); len(cmd) > 0 {
 			switch cmd[1:] {
+			case "setnick":
+				if len(args) > 0 {
+					u, ok := h.GetUser(args[1])
+					if ok {
+						term.SetPrompt(GetPrompt(u))
+						user.SetHighlight(u.Name())
+					}
+				}
 			case "private":
-				user.SetChat(toname)
+				if len(args) > 0 {
+					user.SetChat(args[0])
+				}
 			case "endprivate":
 				user.SetChat("general")
 			case "nick":
@@ -207,6 +217,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 			term.SetPrompt(GetPrompt(user))
 			user.SetHighlight(user.Name())
 		}
+		args = nil
 	}
 
 	err = h.Leave(user)
