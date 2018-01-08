@@ -135,6 +135,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 	}
 
 	// Successfully joined.
+	uesr.SetChat("general")
 	term.SetPrompt(GetPrompt(user))
 	term.AutoCompleteCallback = h.AutoCompleteFunction(user)
 	user.SetHighlight(user.Name())
@@ -150,6 +151,7 @@ func (h *Host) Connect(term *sshd.Terminal) {
 
 	logger.Debugf("[%s] Joined: %s", term.Conn.RemoteAddr(), user.Name())
 
+	var toname string
 	h.private = make(map[string]*message.User)
 	for {
 		line, err := term.ReadLine()
@@ -186,28 +188,23 @@ func (h *Host) Connect(term *sshd.Terminal) {
 				m = message.NewPrivateMsg(
 					m.String(), user, to,
 				)
-				user.SetChat(to.Name())
-				term.SetPrompt(GetPrompt(user))
-				user.SetHighlight(user.Name())
+				toname = to.Name()
 			}
 			h.HandleMsg(m)
 		}
 
 		if cmd := m.Command(); len(cmd) > 0 {
 			switch cmd {
+			case "/private":
+				user.SetChat(toname)
 			case "/endprivate":
 				user.SetChat("general")
-				fallthrough
 			case "/nick":
-				fallthrough
 			case "/theme":
-				fallthrough
 			case "/setnick":
-				fallthrough
-			default:
-				term.SetPrompt(GetPrompt(user))
-				user.SetHighlight(user.Name())
 			}
+			term.SetPrompt(GetPrompt(user))
+			user.SetHighlight(user.Name())
 		}
 	}
 
