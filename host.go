@@ -264,7 +264,7 @@ func (h *Host) AutoCompleteFunction(u *message.User) func(line string, pos int, 
 		posPartial := pos - len(partial)
 
 		var completed string
-		if isFirst && strings.HasPrefix(partial, "/") {
+		if isFirst && (strings.HasPrefix(partial, "/") || strings.HasPrefix(partial, ":")) {
 			// Command
 			completed = h.completeCommand(partial)
 			if completed == "/reply" {
@@ -498,6 +498,10 @@ func (h *Host) InitCommands(c *chat.Commands) {
 				return errors.New("user not found")
 			}
 
+			if room.IsMaster(target) {
+				return errors.New("you cannot kick master")
+			}
+
 			body := fmt.Sprintf("%s was kicked by %s.", target.Name(), msg.From().Name())
 			room.Send(message.NewAnnounceMsg(body))
 			target.Close()
@@ -507,6 +511,7 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	c.Add(chat.Command{
 		Admin:      true,
+		Op:         true,
 		Prefix:     "ban",
 		PrefixHelp: "USER [DURATION]",
 		Help:       "Ban USER from the server.",
@@ -524,6 +529,10 @@ func (h *Host) InitCommands(c *chat.Commands) {
 			target, ok := h.GetUser(args[0])
 			if !ok {
 				return errors.New("user not found")
+			}
+
+			if room.IsMaster(target) {
+				return errors.New("you cannot ban master.")
 			}
 
 			var until time.Duration = 0
@@ -547,12 +556,13 @@ func (h *Host) InitCommands(c *chat.Commands) {
 
 	c.Add(chat.Command{
 		Admin:      true,
+		Op:         true,
 		Prefix:     "motd",
 		PrefixHelp: "[MESSAGE]",
 		Help:       "Set a new MESSAGE of the day, print the current motd without parameters.",
 		Handler: func(room *chat.Room, msg message.CommandMsg) error {
 			user := msg.From()
-			if !room.IsMaster(user) {
+			if !room.IsMaster(user) && !room.IsOp(user) {
 				return errors.New("must be OP to modify the MOTD")
 			}
 
