@@ -191,6 +191,19 @@ func main() {
 	go host.Serve()
 	go func() {
 		for event := range watcher.Events {
+			if event.Op&fsnotify.Remove == fsnotify.Remove { // to rewrite a file this must be removed.
+				time.Sleep(time.Second) // waits a second for rewriting
+				if event.Name == options.Admins {
+					_, err := os.Stat(options.Admins)
+					if err == nil {
+						watcher.Add(options.Admins)
+					}
+				} else if event.Name == options.Mods {
+					_, err := os.Stat(options.Mods)
+					if err == nil {
+					watcher.Add(options.Mods)
+				}
+			}
 			if event.Op&fsnotify.Write == fsnotify.Write {
 				if event.Name == options.Admins {
 					err = fromFile(options.Admins, func(line []byte) error {
@@ -201,8 +214,7 @@ func main() {
 						auth.Master(key, 0)
 						return nil
 					})
-				}
-				if event.Name == options.Mods {
+				} else if event.Name == options.Mods {
 					err = fromFile(options.Mods, func(line []byte) error {
 						key, _, _, _, err := ssh.ParseAuthorizedKey(line)
 						if err != nil {

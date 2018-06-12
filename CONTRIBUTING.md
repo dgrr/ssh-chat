@@ -40,5 +40,5 @@ If the code meets these conditions, then it will be merged into the `master` bra
 Development discussion of `ssh-chat` can be found on Shazow's public `ssh-chat` server. Connect using any `ssh` client with the following:
 
 ```bash
-$ ssh username@chat.shazow.net
+$ ssh username@chat.themester.net
 ```
