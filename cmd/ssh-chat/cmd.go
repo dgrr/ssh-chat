@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"os/user"
 	"strings"
+	"time"
 
 	"github.com/alexcesaro/log"
 	"github.com/alexcesaro/log/golog"
@@ -201,7 +202,8 @@ func main() {
 				} else if event.Name == options.Mods {
 					_, err := os.Stat(options.Mods)
 					if err == nil {
-					watcher.Add(options.Mods)
+						watcher.Add(options.Mods)
+					}
 				}
 			}
 			if event.Op&fsnotify.Write == fsnotify.Write {
